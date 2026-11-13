@@ -44,6 +44,16 @@ The task already has `eat/` and `CLAUDE.md`. Continue with step 3.
 
 ## 2b. The user's own repository
 
+Give the run a worktree and a branch of its own, and do every step below and the launch inside it:
+
+```bash
+git worktree add ../<repo>-wt-eat-run1 -b eat/run1 && cd ../<repo>-wt-eat-run1
+```
+
+The harness commits every iteration with `git add -A`, so the run needs a checkout nobody else is working in. Do not
+switch the existing checkout to the run branch: that moves every session using that folder. Files git does not track
+(a venv, data, build output) do not come along, so point `eat/env.sh` at them or rebuild them in the worktree.
+
 Work out with the user, briefly, then write the files and show them for approval:
 
 1. **Score**: the one number to maximize and how it is measured. Turn lower-is-better metrics into higher-is-better
@@ -63,12 +73,13 @@ Work out with the user, briefly, then write the files and show them for approval
    file. A Gym task's `eat/task.md` is a good example (`$EAT_HOME/ops/fetch_task.sh` caches them in `~/.cache/eat-gym`).
 4. **`eat/env.sh`** if commands need an environment (venv activation, paths, `export EAT_GPUS="${EAT_GPUS:-0}"`).
 5. Add `.work/` and `eat/log/.supervisor_*` to `.gitignore`, run `bash eat/eval.sh` to record the start score, and
-   commit (`git add -A && git commit -m "EAT task setup"`). Work on a branch if the user prefers (`git checkout -b eat/run1`).
+   commit the setup files by name (`git add .gitignore eat && git commit -m "EAT task setup"`, plus `CLAUDE.md` if
+   you wrote one).
 
 ## 3. Launch
 
 Confirm with the user: the budget in dollars, the maximum number of iterations and team size, and optionally the
-models and settings below. Then start the run in tmux from the repository:
+models and settings below. Then start the run in tmux from the task repository (2a) or the run's worktree (2b):
 
 ```bash
 mkdir -p .work
